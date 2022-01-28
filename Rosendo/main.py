@@ -1,11 +1,12 @@
+from sre_constants import JUMP
 import pygame, random
 from sys import exit
 
 class snailO:
-    def __init__(self,):
+    def __init__(self):
         self.position=810
     
-    def move(self,):
+    def move(self):
         snail_rectangle = snail.get_rect(midbottom =(self.position,300))
         screen.blit(snail,snail_rectangle)
         if self.position>=-100:
@@ -28,10 +29,11 @@ pygame.display.set_caption("Rosendo, Be Careful!")
 clock = pygame.time.Clock()
 test_font = pygame.font.Font("Rosendo/font/Pixeltype.ttf", 50)
 pygame.display.set_icon(snail)
+
 text_surface = test_font.render("START!", False, "Black")
 text_rectangle = text_surface.get_rect(midbottom =(400,60))
-player_gravity=300
 seconds=round(pygame.time.get_ticks()/1000)
+jump=0
 
 
 snails=[]
@@ -42,7 +44,8 @@ while True:
             pygame.quit()
             exit()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            player_gravity-=20
+            if jump==0:
+                jump=-150
     # Set the fixed objects
     pygame.display.update()
     screen.blit(background_image, [0, 0])
@@ -54,8 +57,11 @@ while True:
 
     for i in snails:
         i.move()
-    # Player
-    player_rectangle = player_surface.get_rect(midbottom =(80,player_gravity))
+    
+    if jump!=0:
+        jump+=2.5
+    player_rectangle = player_surface.get_rect(midbottom =(80,jump+300)) 
+    
     screen.blit(player_surface,player_rectangle)
 
     # Time
