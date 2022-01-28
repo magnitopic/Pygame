@@ -1,7 +1,5 @@
-from turtle import position
-import pygame
+import pygame, random
 from sys import exit
-import random
 
 class snailO:
     def __init__(self,):
@@ -20,10 +18,10 @@ pygame.init()
 screen = pygame.display.set_mode((800, 400))
 
 #Imagenes
-background_image = pygame.image.load("Rosendo\graphics\Sky.png").convert_alpha()
+background_image = pygame.image.load("Rosendo/graphics/Sky.png").convert_alpha()
 floor = pygame.image.load("Rosendo/graphics/ground.png").convert_alpha()
 snail = pygame.image.load('Rosendo/graphics/snail/snail1.png').convert_alpha()
-player_surface = pygame.image.load('Rosendo\graphics\Player\player_walk_1.png').convert_alpha()
+player_surface = pygame.image.load('Rosendo/graphics/Player/player_walk_1.png').convert_alpha()
 
 #Configuraciones del juego
 pygame.display.set_caption("Rosendo, Be Careful!")
