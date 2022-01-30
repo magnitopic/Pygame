@@ -3,6 +3,7 @@ import pgzrun
 import pygame
 
 puntos=0
+screen = pygame.display.set_mode((350, 600))
 x1=Actor('x')
 x2=Actor('x')
 name=input("Cual es tu nombre?: ") or "player1"
@@ -18,10 +19,10 @@ else:
 	my_actor=Actor('luis')
 
 
-pygame.mixer.Channel(0).play(pygame.mixer.Sound('sounds/song.mp3'))
+pygame.mixer.Channel(0).play(pygame.mixer.Sound('shootGame/sounds/song.mp3'))
 pygame.mixer.Channel(0).set_volume(0.5)
 pygame.mouse.set_cursor(*pygame.cursors.broken_x)
-background_image = pygame.image.load("images/background.png").convert()
+background_image = pygame.image.load("shootGame/images/background.png").convert()
 
 def draw():
 	screen.clear()
@@ -44,9 +45,9 @@ def on_mouse_down(pos):
 		puntos+=1
 		print(f"¡Buena puntería! Tienes {puntos} puntos")
 		if random.random() < .5:
-			pygame.mixer.Channel(1).play(pygame.mixer.Sound('sounds/shot_a.mp3'))
+			pygame.mixer.Channel(1).play(pygame.mixer.Sound('shootGame/sounds/shot_a.mp3'))
 		else:
-			pygame.mixer.Channel(1).play(pygame.mixer.Sound('sounds/shot_b.mp3'))
+			pygame.mixer.Channel(1).play(pygame.mixer.Sound('shootGame/sounds/shot_b.mp3'))
 		place_my_actor()
 	else:
 		print("Te has equivocado")
