@@ -1,6 +1,4 @@
-import random
-import pgzrun
-import pygame
+import random, pgzrun, pygame
 
 puntos=0
 screen = pygame.display.set_mode((350, 600))
