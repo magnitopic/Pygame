@@ -21,8 +21,12 @@ image_w, image_h = background.get_size()
 clock = pygame.time.Clock()
 pygame.display.set_caption("Doodle jump")
 pygame.display.set_icon(playerImage)
+pygame.font.init()
+pointsFont = pygame.font.SysFont("comicsans", 30)
+gameOverFont = pygame.font.SysFont("Verdana", 50)
 
 
+# Object instantiating
 class Leaf:
     def __init__(self, x, y):
         self.x = x
@@ -48,7 +52,7 @@ class Player:
 doodle = Player()
 leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))
          for i in range(15)]
-score=0
+points = 0
 while True:
     # if close window button is pressed the game closes
     for event in pygame.event.get():
@@ -60,8 +64,8 @@ while True:
         for y in range(0, screen_h, image_h):
             screen.blit(background, (x, y))
 
+    # Player movement
     key = pygame.key.get_pressed()
-
     if key[pygame.K_LEFT]:
         doodle.x -= 4
         playerImage = pygame.image.load("doodleJump/graphics/normal.png")
@@ -82,19 +86,26 @@ while True:
             if leaf.y > 600:
                 leaf.y = 0
                 leaf.x = random.randrange(0, 270)
-                score+=1
+                points += 1
 
     # Jumping
     doodle.dy += 0.2
     doodle.y += doodle.dy
     if doodle.y > 600:
-        doodle.dy = -10
+        screen.fill("red")
+        text = gameOverFont.render("Game Over...", 1, (0, 0, 0))
+        screen.blit(text, (30, 200))
+    else:
+        # Draw points
+        text = pointsFont.render("Points: " + str(points), 1, (0, 0, 0))
+        screen.blit(text, (220, 10))
 
     # Colition with leafs
     for leaf in leafs:
-        if (doodle.x+50 > leaf.x) and (doodle.x + 20 < leaf.x + 68) and (doodle.y + 70 > leaf.y) and (doodle.y + 70 < leaf.y + 14) and doodle.dy > 0:
+        if (doodle.x + 50 > leaf.x) and (doodle.x + 20 < leaf.x + 68) and (doodle.y + 70 > leaf.y) and (doodle.y + 70 < leaf.y + 14) and doodle.dy > 0:
             doodle.dy = -10
 
+    # Draw player
     screen.blit(playerImage, [doodle.x, doodle.y])
 
     pygame.display.update()
