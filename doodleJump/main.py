@@ -48,6 +48,7 @@ class Player:
 doodle = Player()
 leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))
          for i in range(15)]
+score=0
 while True:
     # if close window button is pressed the game closes
     for event in pygame.event.get():
@@ -72,6 +73,16 @@ while True:
     # Setting the leafs
     for leaf in leafs:
         screen.blit(leafImage, (leaf.x, leaf.y))
+
+    # Going up
+    if doodle.y < doodle.h:
+        doodle.y = doodle.h
+        for leaf in leafs:
+            leaf.y -= doodle.dy
+            if leaf.y > 600:
+                leaf.y = 0
+                leaf.x = random.randrange(0, 270)
+                score+=1
 
     # Jumping
     doodle.dy += 0.2
