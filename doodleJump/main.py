@@ -1,8 +1,5 @@
-import pygame
-import random
-import os
+import pygame, random
 from sys import exit
-
 
 pygame.init()
 screen = pygame.display.set_mode((350, 600))
@@ -12,18 +9,19 @@ background = pygame.image.load(
     "doodleJump/graphics/background.jpg").convert_alpha()
 playerImage = pygame.image.load(
     "doodleJump/graphics/normal.png").convert_alpha()
+playerShoot = pygame.image.load(
+    "doodleJump/graphics/shoot.png").convert_alpha()
 leafImage = pygame.image.load("doodleJump/graphics/leaf.png").convert_alpha()
 screen_w, screen_h = screen.get_size()
 image_w, image_h = background.get_size()
-
 
 # Pygame configs
 clock = pygame.time.Clock()
 pygame.display.set_caption("Doodle jump")
 pygame.display.set_icon(playerImage)
 pygame.font.init()
-pointsFont = pygame.font.SysFont("comicsans", 30)
-gameOverFont = pygame.font.SysFont("Verdana", 50)
+pointsFont = pygame.font.SysFont("comicsans", 20)
+gameOverFont = pygame.font.SysFont("Verdana", 30)
 
 
 # Object instantiating
@@ -66,10 +64,10 @@ while True:
 
     # Player movement
     key = pygame.key.get_pressed()
-    if key[pygame.K_LEFT]:
+    if key[pygame.K_LEFT] and doodle.x > 0:
         doodle.x -= 4
         playerImage = pygame.image.load("doodleJump/graphics/normal.png")
-    if key[pygame.K_RIGHT]:
+    if key[pygame.K_RIGHT] and doodle.x < 270:
         doodle.x += 4
         playerImage = pygame.transform.flip(pygame.image.load(
             "doodleJump/graphics/normal.png"), True, False)
@@ -94,9 +92,9 @@ while True:
     if doodle.y > 600:
         screen.fill("red")
         text = gameOverFont.render("Game Over...", 1, (0, 0, 0))
-        screen.blit(text, (30, 200))
+        screen.blit(text, (70, 200))
     else:
-        # Draw points
+        # if game not over draw points
         text = pointsFont.render("Points: " + str(points), 1, (0, 0, 0))
         screen.blit(text, (220, 10))
 
@@ -106,7 +104,10 @@ while True:
             doodle.dy = -10
 
     # Draw player
-    screen.blit(playerImage, [doodle.x, doodle.y])
+    if key[pygame.K_UP]:
+        screen.blit(playerShoot, [doodle.x, doodle.y])
+    else:
+        screen.blit(playerImage, [doodle.x, doodle.y])
 
     pygame.display.update()
     clock.tick(60)
