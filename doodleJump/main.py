@@ -13,6 +13,7 @@ playerImage = pygame.image.load(
 playerShoot = pygame.image.load(
     "doodleJump/graphics/shoot.png").convert_alpha()
 leafImage = pygame.image.load("doodleJump/graphics/leaf.png").convert_alpha()
+monsterImage = pygame.image.load("doodleJump/graphics/monster.png").convert_alpha()
 
 # Pygame configs
 clock = pygame.time.Clock()
@@ -23,8 +24,8 @@ pointsFont = pygame.font.SysFont("comicsans", 20)
 gameOverFont = pygame.font.SysFont("Verdana", 30)
 
 # Music
-""" pygame.mixer.Channel(0).play(pygame.mixer.Sound('shootGame/sounds/music.mp3'))
-pygame.mixer.Channel(0).set_volume(0.5) """
+pygame.mixer.Channel(0).play(pygame.mixer.Sound('shootGame/sounds/music.mp3'))
+pygame.mixer.Channel(0).set_volume(0.5)
 
 
 # Object instantiating
@@ -41,11 +42,22 @@ class Player:
     h = 200
 
 
+class Monster:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def show(self, show):
+        if show:
+            pass
+
+
 # Creating objects
 doodle = Player()
 leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))
          for i in range(14)]
 leafs.append(Leaf(doodle.x, doodle.y-30))
+monser=Monster()
 points = 0
 while True:
     # if close window button is pressed the game closes
@@ -108,6 +120,9 @@ while True:
         screen.blit(playerShoot, [doodle.x, doodle.y])
     else:
         screen.blit(playerImage, [doodle.x, doodle.y])
+
+    #monster display
+
 
     pygame.display.update()
     clock.tick(60)
