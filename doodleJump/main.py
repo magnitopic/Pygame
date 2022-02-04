@@ -24,8 +24,7 @@ pointsFont = pygame.font.SysFont("comicsans", 20)
 gameOverFont = pygame.font.SysFont("Verdana", 30)
 
 # Music
-pygame.mixer.Channel(0).play(pygame.mixer.Sound('shootGame/sounds/music.mp3'))
-pygame.mixer.Channel(0).set_volume(0.5)
+pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/main.wav'),-1)
 
 
 # Object instantiating
@@ -36,29 +35,25 @@ class Leaf:
 
 
 class Player:
-    x = 175
-    y = 300
-    dy = 0.0
-    h = 200
+    def __init__(self):
+        self.x = 175
+        self.y = 300
+        self.dy = 0.0
+        self.h = 200
 
 
 class Monster:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
-    def show(self, show):
-        if show:
-            pass
 
 
 # Creating objects
 doodle = Player()
-leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))
-         for i in range(14)]
-leafs.append(Leaf(doodle.x, doodle.y-30))
-monser=Monster()
+leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))for i in range(14)]
+screen.blit(leafImage, (doodle.x, doodle.y+20))
 points = 0
+monster="   "
 while True:
     # if close window button is pressed the game closes
     for event in pygame.event.get():
@@ -95,11 +90,13 @@ while True:
                 leaf.y = 0
                 leaf.x = random.randrange(0, 270)
                 points += 1
-
+            if points%20:
+                monster=Monster(1,2)
     # Jumping
     doodle.dy += 0.2
     doodle.y += doodle.dy
     if doodle.y > 600:
+        pygame.mixer.pause()
         screen.fill("red")
         text = gameOverFont.render("Game Over...", 1, (0, 0, 0))
         screen.blit(text, (70, 200))
@@ -122,7 +119,8 @@ while True:
         screen.blit(playerImage, [doodle.x, doodle.y])
 
     #monster display
-
+    if monster!="":
+        screen.blit(monsterImage, (monster.x,monster.y))
 
     pygame.display.update()
     clock.tick(60)
