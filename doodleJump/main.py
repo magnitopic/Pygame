@@ -1,3 +1,4 @@
+from matplotlib.colors import PowerNorm
 import pygame
 import random
 from sys import exit
@@ -13,7 +14,8 @@ playerImage = pygame.image.load(
 playerShoot = pygame.image.load(
     "doodleJump/graphics/shoot.png").convert_alpha()
 leafImage = pygame.image.load("doodleJump/graphics/leaf.png").convert_alpha()
-monsterImage = pygame.image.load("doodleJump/graphics/monster.png").convert_alpha()
+monsterImage = pygame.image.load(
+    "doodleJump/graphics/monster.png").convert_alpha()
 
 # Pygame configs
 clock = pygame.time.Clock()
@@ -24,10 +26,13 @@ pointsFont = pygame.font.SysFont("comicsans", 20)
 gameOverFont = pygame.font.SysFont("Verdana", 30)
 
 # Music
-pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/main.wav'),-1)
-
+pygame.mixer.Channel(0).play(
+    pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
+pygame.mixer.Channel(0).set_volume(0)
 
 # Object instantiating
+
+
 class Leaf:
     def __init__(self, x, y):
         self.x = x
@@ -46,14 +51,17 @@ class Monster:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.direction = 1
+        self.speed = random.randint(1, 2)
 
 
 # Creating objects
 doodle = Player()
-leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))for i in range(14)]
+leafs = [Leaf(random.randrange(0, 270), random.randrange(0, 600))
+         for i in range(14)]
 screen.blit(leafImage, (doodle.x, doodle.y+20))
 points = 0
-monster="   "
+monster = ""
 while True:
     # if close window button is pressed the game closes
     for event in pygame.event.get():
@@ -90,20 +98,24 @@ while True:
                 leaf.y = 0
                 leaf.x = random.randrange(0, 270)
                 points += 1
-            if points%20:
-                monster=Monster(1,2)
-    # Jumping
+            if points % 75 == 0 and points > 1:
+                monster = Monster(1, 2)
+
+    # player Jumping
     doodle.dy += 0.2
     doodle.y += doodle.dy
+
+    # death and points
     if doodle.y > 600:
         pygame.mixer.pause()
+        monster = ""
         screen.fill("red")
         text = gameOverFont.render("Game Over...", 1, (0, 0, 0))
         screen.blit(text, (70, 200))
         text = gameOverFont.render(f"Score: {points} points", 1, (0, 0, 0))
         screen.blit(text, (40, 350))
     else:
-        # if game not over draw points
+        # if game not over, draw points
         text = pointsFont.render("Points: " + str(points), 1, (0, 0, 0))
         screen.blit(text, (220, 10))
 
@@ -118,9 +130,23 @@ while True:
     else:
         screen.blit(playerImage, [doodle.x, doodle.y])
 
-    #monster display
-    if monster!="":
-        screen.blit(monsterImage, (monster.x,monster.y))
+    # monster display
+    if not monster == '':
+        # Move monster down when player moves up
+        if doodle.y < doodle.h:
+            monster.y -= doodle.dy
+        # Move monster depending on the direction
+        if monster.direction:
+            monster.x += monster.speed
+        else:
+            monster.x -= monster.speed
+        # Change monster direction
+        if monster.x >= 230:
+            monster.direction = 0
+        elif monster.x <= 0:
+            monster.direction = 1
+        # draw monser
+        screen.blit(monsterImage, (monster.x, monster.y))
 
     pygame.display.update()
     clock.tick(60)
