@@ -1,9 +1,8 @@
 import pygame
-import random
+import random as rnd
 from sys import exit
 
 
-# Objects
 class Leaf:
     def __init__(self, x, y):
         self.x = x
@@ -34,7 +33,7 @@ class Player:
             self.image = self.imageRoute
         if (key[pygame.K_RIGHT] or key[pygame.K_d]) and self.x < 270:
             self.x += 4
-            self.image = pygame.transform.flip(self.imageRoute, True, False)
+            self.image = pygame.transform.flip(self.image, True, False)
 
     def jumping(self):
         self.dy += 0.2
@@ -43,21 +42,20 @@ class Player:
 
 class Monster:
     def __init__(self):
-        self.x = 0
+        self.x = rnd.randint(0, 230)
         self.y = 0
         self.direction = 1
-        self.speed = random.randint(1, 2)
         self.alive = False
         self.image = pygame.image.load(
             "doodleJump/graphics/monster.png").convert_alpha()
+        self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
 
 class Game:
     def __init__(self):
         # we start the game
         pygame.init()
-        # iniciate objects
-        # General game settings
+        # game settings
         self.screen = pygame.display.set_mode((350, 600))
         self.clock = pygame.time.Clock()
         self.startGame()
@@ -72,7 +70,7 @@ class Game:
         # Music
         pygame.mixer.Channel(0).play(
             pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
-        pygame.mixer.Channel(0).set_volume(0)
+        # pygame.mixer.Channel(0).set_volume(0)
         # Fonts
         pygame.font.init()
         self.pointsFont = pygame.font.SysFont("comicsans", 20)
@@ -81,8 +79,8 @@ class Game:
     def startGame(self):
         self.player = Player()
         self.monster = Monster()
-        self.leafs = [Leaf(random.randrange(0, 270),
-                           random.randrange(0, 600)) for i in range(14)]
+        self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))
+                      for i in range(14)]
 
     def dead(self):
         pygame.mixer.pause()
@@ -112,7 +110,7 @@ class Game:
                 for x in range(0, 350, 339):
                     for y in range(0, 600, 509):
                         self.screen.blit(self.background, (x, y))
-                # Get new player position for the collision box
+                # update player.collisionBox to players position
                 self.player.collisionBox = self.player.image.get_rect(
                     topleft=(self.player.x, self.player.y))
 
@@ -130,7 +128,7 @@ class Game:
                         leaf.y -= self.player.dy
                         if leaf.y > 600:
                             leaf.y = 0
-                            leaf.x = random.randrange(0, 270)
+                            leaf.x = rnd.randrange(0, 270)
                             self.points += 1
                         if self.points % 75 == 0 and self.points > 1:
                             self.monster.alive = True
@@ -156,29 +154,36 @@ class Game:
                 for leaf in self.leafs:
                     if (self.player.x + 50 > leaf.x) and (self.player.x + 20 < leaf.x + 68) and (self.player.y + 70 > leaf.y) and (self.player.y + 70 < leaf.y + 14) and self.player.dy > 0:
                         self.player.dy = -10
-                """ # monster display
-                if not self.monster.alive:
-                    monsterRectange = self.monster.image.get_rect(
-                        topleft=(monster.x, monster.y))
-                    if self.player.collisionBox.colliderect(monsterRectange):
-                        self.player.dead = True
+                # monster display
+                if self.monster.alive:
+                    # update monster.collisionBox to monsters position
+                    self.monster.collisionBox = self.monster.image.get_rect(
+                        topleft=(self.monster.x, self.monster.y))
+
+                    # movement
                     # Move monster down when player moves up
                     if self.player.y < self.player.h:
-                        monster.y -= self.player.dy
+                        self.monster.y -= self.player.dy
                     # Move monster depending on the direction
-                    if monster.direction:
-                        monster.x += monster.speed
+                    if self.monster.direction:
+                        self.monster.x += 1.5
                     else:
-                        monster.x -= monster.speed
+                        self.monster.x -= 1.5
                     # Change monster direction
-                    if monster.x >= 230:
-                        monster.direction = 0
-                    elif monster.x <= 0:
-                        monster.direction = 1
-                    # draw monser
-                    self.screen.blit(self.monster.image, monsterRectange)
-                    if monster.y > 600:
-                        monster = "" """
+                    if self.monster.x >= 230:
+                        self.monster.direction = 0
+                    elif self.monster.x <= 0:
+                        self.monster.direction = 1
+                    # draw monster
+                    self.screen.blit(self.monster.image,self.monster.collisionBox)
+
+                    # deaths
+                    # if monster colides with player, player dies
+                    if self.player.collisionBox.colliderect(self.monster.collisionBox):
+                        self.player.dead = True
+                    # if monster goes bellow the screen, he dies
+                    if self.monster.y > 600:
+                        self.monster.alive == False
             pygame.display.update()
             self.clock.tick(60)
 
