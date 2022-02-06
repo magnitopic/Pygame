@@ -19,10 +19,8 @@ class Player:
         self.dy = 0.0
         self.h = 200
         self.dead = 0
-        self.imageRoute = pygame.image.load(
-            "doodleJump/graphics/normal.png").convert_alpha()
-        self.shootImg = pygame.image.load(
-            "doodleJump/graphics/shoot.png").convert_alpha()
+        self.imageRoute = pygame.image.load("doodleJump/graphics/normal.png").convert_alpha()
+        self.shootImg = pygame.image.load("doodleJump/graphics/shoot.png").convert_alpha()
         self.image = self.imageRoute
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -31,11 +29,9 @@ class Player:
         # move and cange image
         if (key[pygame.K_LEFT] or key[pygame.K_a]) and self.x > 0:
             self.x -= 4
-            self.y -= 0.5
             self.image = self.imageRoute
         if (key[pygame.K_RIGHT] or key[pygame.K_d]) and self.x < 270:
             self.x += 4
-            self.y += .5
             self.image = pygame.transform.flip(self.imageRoute, True, False)
 
     def jumping(self):
@@ -69,6 +65,7 @@ class Game:
         self.key = pygame.key.get_pressed()
         self.background = pygame.image.load(
             "doodleJump/graphics/background.jpg").convert_alpha()
+        self.points=0
         # Music
         pygame.mixer.Channel(0).play(
             pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
@@ -83,7 +80,6 @@ class Game:
         self.monster = Monster()
         self.leafs = [Leaf(random.randrange(0, 270),
                            random.randrange(0, 600)) for i in range(14)]
-        self.dead = 0
 
     def dead(self):
         pygame.mixer.pause()
@@ -94,7 +90,7 @@ class Game:
             f"Score: {self.points} points", 1, (0, 0, 0))
         self.screen.blit(text, (40, 350))
         if self.key[pygame.K_SPACE]:
-            self.startGame(self.key)
+            self.startGame()
 
     # main program
     def main(self):
@@ -104,7 +100,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-            if self.dead:
+            if self.player.dead:
                 self.dead()
             else:
                 # Draw repeating background
@@ -112,11 +108,10 @@ class Game:
                     for y in range(0, 600, 509):
                         self.screen.blit(self.background, (x, y))
                 # Get new player position for the collision box
-                self.player.collisionBox = self.player.image.get_rect(
-                    topleft=(self.x, self.y))
+                self.player.collisionBox = self.player.image.get_rect(topleft=(self.player.x, self.player.y))
 
                 # Player movement
-                self.player.movement()
+                self.player.movement(self.key)
 
                 # Setting the leafs
                 for leaf in self.leafs:
@@ -131,23 +126,24 @@ class Game:
                             leaf.y = 0
                             leaf.x = random.randrange(0, 270)
                             self.points += 1
-                        if self.points % 75 == 0 and self.points > 1 and self.monster.alive:
-                            monster = Monster(random.randint(1, 230), 2)
+                        if self.points % 75 == 0 and self.points > 1:
+                            self.monster.alive=True
+
                 # player Jumping
                 self.player.jumping()
+
                 # player dying
                 if self.player.y > 600:
                     self.player.dead = True
+
                 # shooting and drawing player
                 if self.key[pygame.K_SPACE] or self.key[pygame.K_UP]:
                     self.player.image = self.player.shootImg
-                    self.screen.blit(self.player.image, [self.player.x, self.player.y])
                 else:
                     self.player.image = self.player.imageRoute
-                    self.screen.blit(self.player.collisionBox,self.player.collisionBox)
+                self.screen.blit(self.player.image,self.player.collisionBox)
                 # draw points
-                text = self.pointsFont.render(
-                    "Points: " + str(self.points), 1, (0, 0, 0))
+                text = self.pointsFont.render(f"Points: {self.points}", 1, (0, 0, 0))
                 self.screen.blit(text, (220, 10))
                 # Colition with leafs
                 for leaf in self.leafs:
@@ -176,8 +172,8 @@ class Game:
                     self.screen.blit(self.monster.image, monsterRectange)
                     if monster.y > 600:
                         monster = "" """
-                pygame.display.update()
-                self.clock.tick(60)
+            pygame.display.update()
+            self.clock.tick(60)
 
 
 if __name__ == "__main__":
