@@ -19,8 +19,10 @@ class Player:
         self.dy = 0.0
         self.h = 200
         self.dead = 0
-        self.imageRoute = pygame.image.load("doodleJump/graphics/normal.png").convert_alpha()
-        self.shootImg = pygame.image.load("doodleJump/graphics/shoot.png").convert_alpha()
+        self.imageRoute = pygame.image.load(
+            "doodleJump/graphics/normal.png").convert_alpha()
+        self.shootImg = pygame.image.load(
+            "doodleJump/graphics/shoot.png").convert_alpha()
         self.image = self.imageRoute
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -61,11 +63,12 @@ class Game:
         self.startGame()
         pygame.display.set_caption("Doodle jump")
         pygame.display.set_icon(self.player.image)
+
         # variables
         self.key = pygame.key.get_pressed()
         self.background = pygame.image.load(
             "doodleJump/graphics/background.jpg").convert_alpha()
-        self.points=0
+        self.points = 0
         # Music
         pygame.mixer.Channel(0).play(
             pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
@@ -100,6 +103,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+            # get new key
+            self.key = pygame.key.get_pressed()
             if self.player.dead:
                 self.dead()
             else:
@@ -108,7 +113,8 @@ class Game:
                     for y in range(0, 600, 509):
                         self.screen.blit(self.background, (x, y))
                 # Get new player position for the collision box
-                self.player.collisionBox = self.player.image.get_rect(topleft=(self.player.x, self.player.y))
+                self.player.collisionBox = self.player.image.get_rect(
+                    topleft=(self.player.x, self.player.y))
 
                 # Player movement
                 self.player.movement(self.key)
@@ -127,7 +133,7 @@ class Game:
                             leaf.x = random.randrange(0, 270)
                             self.points += 1
                         if self.points % 75 == 0 and self.points > 1:
-                            self.monster.alive=True
+                            self.monster.alive = True
 
                 # player Jumping
                 self.player.jumping()
@@ -141,9 +147,10 @@ class Game:
                     self.player.image = self.player.shootImg
                 else:
                     self.player.image = self.player.imageRoute
-                self.screen.blit(self.player.image,self.player.collisionBox)
+                self.screen.blit(self.player.image, self.player.collisionBox)
                 # draw points
-                text = self.pointsFont.render(f"Points: {self.points}", 1, (0, 0, 0))
+                text = self.pointsFont.render(
+                    f"Points: {self.points}", 1, (0, 0, 0))
                 self.screen.blit(text, (220, 10))
                 # Colition with leafs
                 for leaf in self.leafs:
@@ -176,6 +183,6 @@ class Game:
             self.clock.tick(60)
 
 
-if __name__ == "__main__":
-    game = Game()
-    game.main
+# if __name__ == "__main__":
+game = Game()
+game.main()
