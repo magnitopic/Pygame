@@ -18,11 +18,9 @@ class Player:
         self.dy = 0.0
         self.h = 200
         self.dead = 0
-        self.imageRoute = pygame.image.load(
-            "doodleJump/graphics/normal.png").convert_alpha()
-        self.shootImg = pygame.image.load(
-            "doodleJump/graphics/shoot.png").convert_alpha()
-        self.image = self.imageRoute
+        self.normalImg = pygame.image.load("doodleJump/graphics/normal.png").convert_alpha()
+        self.shootImg = pygame.image.load("doodleJump/graphics/shoot.png").convert_alpha()
+        self.image = self.normalImg
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
     def movement(self, key):
@@ -30,10 +28,10 @@ class Player:
         # move and cange image
         if (key[pygame.K_LEFT] or key[pygame.K_a]) and self.x > 0:
             self.x -= 4
-            self.image = self.imageRoute
+            self.image = self.normalImg
         if (key[pygame.K_RIGHT] or key[pygame.K_d]) and self.x < 270:
             self.x += 4
-            self.image = pygame.transform.flip(self.image, True, False)
+            self.image = pygame.transform.flip(self.normalImg, True, False)
 
     def jumping(self):
         self.dy += 0.2
@@ -45,7 +43,7 @@ class Monster:
         self.x = rnd.randint(0, 230)
         self.y = 0
         self.direction = 1
-        self.alive = False
+        self.dead = True
         self.image = pygame.image.load(
             "doodleJump/graphics/monster.png").convert_alpha()
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
@@ -67,10 +65,6 @@ class Game:
         self.background = pygame.image.load(
             "doodleJump/graphics/background.jpg").convert_alpha()
         self.points = 0
-        # Music
-        pygame.mixer.Channel(0).play(
-            pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
-        # pygame.mixer.Channel(0).set_volume(0)
         # Fonts
         pygame.font.init()
         self.pointsFont = pygame.font.SysFont("comicsans", 20)
@@ -79,17 +73,20 @@ class Game:
     def startGame(self):
         self.player = Player()
         self.monster = Monster()
-        self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))
-                      for i in range(14)]
+        self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))for i in range(14)]
+        # Music
+        pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
+        # pygame.mixer.Channel(0).set_volume(0)
 
     def dead(self):
         pygame.mixer.pause()
         self.screen.fill("red")
         text = self.gameOverFont.render("Game Over...", 1, (0, 0, 0))
-        self.screen.blit(text, (70, 200))
-        text = self.gameOverFont.render(
-            f"Score: {self.points} points", 1, (0, 0, 0))
-        self.screen.blit(text, (40, 350))
+        self.screen.blit(text, (75, 200))
+        text = self.gameOverFont.render(f"Score: {self.points} points", 1, (0, 0, 0))
+        self.screen.blit(text, (60, 300))
+        text = self.gameOverFont.render(f"Space to play again", 1, (0, 0, 0))
+        self.screen.blit(text, (40, 400))
         if self.key[pygame.K_SPACE]:
             self.startGame()
 
@@ -111,8 +108,7 @@ class Game:
                     for y in range(0, 600, 509):
                         self.screen.blit(self.background, (x, y))
                 # update player.collisionBox to players position
-                self.player.collisionBox = self.player.image.get_rect(
-                    topleft=(self.player.x, self.player.y))
+                self.player.collisionBox = self.player.image.get_rect(topleft=(self.player.x, self.player.y))
 
                 # Player movement
                 self.player.movement(self.key)
@@ -124,14 +120,17 @@ class Game:
                 # Going up
                 if self.player.y < self.player.h:
                     self.player.y = self.player.h
+                    # move the leafs
                     for leaf in self.leafs:
                         leaf.y -= self.player.dy
                         if leaf.y > 600:
                             leaf.y = 0
                             leaf.x = rnd.randrange(0, 270)
                             self.points += 1
-                        if self.points % 75 == 0 and self.points > 1:
-                            self.monster.alive = True
+                    # spawn monster
+                    if self.points % 25 == 0 and self.points > 1 and self.monster.dead:
+                        self.monster.__init__()
+                        self.monster.dead=False
 
                 # player Jumping
                 self.player.jumping()
@@ -142,10 +141,9 @@ class Game:
 
                 # shooting and drawing player
                 if self.key[pygame.K_SPACE] or self.key[pygame.K_UP]:
-                    self.player.image = self.player.shootImg
+                    self.screen.blit(self.player.shootImg, self.player.collisionBox)
                 else:
-                    self.player.image = self.player.imageRoute
-                self.screen.blit(self.player.image, self.player.collisionBox)
+                    self.screen.blit(self.player.image, self.player.collisionBox)
                 # draw points
                 text = self.pointsFont.render(
                     f"Points: {self.points}", 1, (0, 0, 0))
@@ -155,10 +153,9 @@ class Game:
                     if (self.player.x + 50 > leaf.x) and (self.player.x + 20 < leaf.x + 68) and (self.player.y + 70 > leaf.y) and (self.player.y + 70 < leaf.y + 14) and self.player.dy > 0:
                         self.player.dy = -10
                 # monster display
-                if self.monster.alive:
+                if not self.monster.dead:
                     # update monster.collisionBox to monsters position
-                    self.monster.collisionBox = self.monster.image.get_rect(
-                        topleft=(self.monster.x, self.monster.y))
+                    self.monster.collisionBox = self.monster.image.get_rect(topleft=(self.monster.x, self.monster.y))
 
                     # movement
                     # Move monster down when player moves up
@@ -179,15 +176,15 @@ class Game:
 
                     # deaths
                     # if monster colides with player, player dies
-                    if self.player.collisionBox.colliderect(self.monster.collisionBox):
-                        self.player.dead = True
+                    """ if self.player.collisionBox.colliderect(self.monster.collisionBox):
+                        self.player.dead = True """
                     # if monster goes bellow the screen, he dies
                     if self.monster.y > 600:
-                        self.monster.alive == False
+                        self.monster.dead == True
             pygame.display.update()
             self.clock.tick(60)
 
 
-# if __name__ == "__main__":
-game = Game()
-game.main()
+if __name__ == "__main__":
+    game = Game()
+    game.main()
