@@ -46,9 +46,15 @@ class Monster:
         self.y = 0
         self.direction = 1
         self.dead = True
-        self.image = pygame.image.load(
-            "doodleJump/graphics/monster.png").convert_alpha()
+        self.image = pygame.image.load("doodleJump/graphics/monster.png").convert_alpha()
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
+
+
+class Projectile:
+    def __init__(self, x, y):
+        self.cooldown = 0
+        self.x = x
+        self.y = y
 
 
 class Game:
@@ -77,9 +83,9 @@ class Game:
         self.monster = None
         self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))
                       for i in range(14)]
+        self.projectile = Projectile(0, 0)
         # Music
-        pygame.mixer.Channel(0).play(
-            pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
+        #pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
         # pygame.mixer.Channel(0).set_volume(0)
 
     def dead(self):
@@ -146,19 +152,29 @@ class Game:
 
                 # shooting and drawing player
                 if self.key[pygame.K_SPACE] or self.key[pygame.K_UP]:
-                    self.screen.blit(self.player.shootImg,
-                                     self.player.collisionBox)
+                    self.screen.blit(self.player.shootImg,self.player.collisionBox)
+                    if self.projectile.cooldown <= 0:
+                        self.projectile = Projectile(self.player.x + 35, self.player.y)
+                        self.projectile.cooldown=1
                 else:
-                    self.screen.blit(self.player.image,
-                                     self.player.collisionBox)
+                    self.screen.blit(self.player.image,self.player.collisionBox)
+                # projectile logic
+                self.projectile.cooldown -= 0.02
+                self.projectile.y-=7
+                pygame.draw.circle(self.screen, pygame.Color(30,179,0), (self.projectile.x, self.projectile.y), 10)
+
+
+
                 # draw points
                 text = self.pointsFont.render(
                     f"Points: {self.points}", 1, (0, 0, 0))
                 self.screen.blit(text, (220, 10))
+
                 # Colition with leafs
                 for leaf in self.leafs:
                     if (self.player.x + 50 > leaf.x) and (self.player.x + 20 < leaf.x + 68) and (self.player.y + 70 > leaf.y) and (self.player.y + 70 < leaf.y + 14) and self.player.dy > 0:
                         self.player.dy = -10
+
                 # monster display
                 if not self.monster == None:
                     # update monster.collisionBox to monsters position
