@@ -74,8 +74,8 @@ class Game:
 
         # variables
         self.key = pygame.key.get_pressed()
-        self.background = pygame.image.load(
-            "doodleJump/graphics/background.jpg").convert_alpha()
+        self.background = pygame.image.load("doodleJump/graphics/background.jpg").convert_alpha()
+        self.monsterPoints=rnd.randrange(60,80)
         # Fonts
         pygame.font.init()
         self.pointsFont = pygame.font.SysFont("comicsans", 20)
@@ -149,7 +149,7 @@ class Game:
                             leaf.x = rnd.randrange(0, 270)
                             self.points += 1
                     # spawn monster
-                    if self.points % 75 == 0 and self.points > 1 and self.monster == None:
+                    if self.points % self.monsterPoints == 0 and self.points > 1 and self.monster == None:
                         self.monster = Monster()
 
                 # player Jumping
