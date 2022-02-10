@@ -46,8 +46,7 @@ class Monster:
         self.y = 0
         self.direction = 1
         self.dead = True
-        self.image = pygame.image.load(
-            "doodleJump/graphics/monster.png").convert_alpha()
+        self.image = pygame.image.load("doodleJump/graphics/monster.png").convert_alpha()
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -86,13 +85,11 @@ class Game:
         self.points = 0
         self.player = Player()
         self.monster = None
-        self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))
-                      for i in range(14)]
+        self.leafs = [Leaf(rnd.randrange(0, 270), rnd.randrange(0, 600))for i in range(14)]
         self.projectile = Projectile()
         # Music
         pygame.mixer.pause()
-        pygame.mixer.Channel(0).play(
-            pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
+        pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/main.wav'), -1)
         # pygame.mixer.Channel(0).set_volume(0)
 
     def dead(self):
@@ -165,26 +162,21 @@ class Game:
 
                 # shooting and drawing player
                 if self.key[pygame.K_SPACE] or self.key[pygame.K_UP]:
-                    self.screen.blit(self.player.shootImg,
-                                     self.player.collisionBox)
+                    self.screen.blit(self.player.shootImg,self.player.collisionBox)
                     if self.projectile.cooldown <= 0:
-                        self.projectile = Projectile(self.player.x + 35, self.player.y)
+                        self.projectile = Projectile(self.player.x + 20, self.player.y)
                 else:
-                    self.screen.blit(self.player.image,
-                                     self.player.collisionBox)
+                    self.screen.blit(self.player.image,self.player.collisionBox)
                 # projectile logic
                 self.projectile.cooldown -= 0.02
                 self.projectile.y -= 7
                 self.projectile.collisionBox = self.projectile.image.get_rect(
                     topleft=(self.projectile.x, self.projectile.y))
-                self.screen.blit(self.projectile.image,
-                                 self.projectile.collisionBox)
-                if self.monster.collisionBox.colliderect(self.projectile.collisionBox):
-                    print("YES")
+                self.screen.blit(self.projectile.image,self.projectile.collisionBox)
+                
 
                 # draw points
-                text = self.pointsFont.render(
-                    f"Points: {self.points}", 1, (0, 0, 0))
+                text = self.pointsFont.render(f"Points: {self.points}", 1, (0, 0, 0))
                 self.screen.blit(text, (220, 10))
 
                 # Colition with leafs
@@ -218,11 +210,14 @@ class Game:
 
                     # deaths
                     # if monster colides with player, player dies
-                    """ if self.player.collisionBox.colliderect(self.monster.collisionBox):
+                    if self.player.collisionBox.colliderect(self.monster.collisionBox):
                         self.deadSound()
-                        self.player.dead = True """
+                        self.player.dead = True
+                    # if projectile hits monster he dies
+                    if self.monster.collisionBox.colliderect(self.projectile.collisionBox):
+                        self.monster = None
                     # if monster goes bellow the screen, he dies
-                    if self.monster.y > 600:
+                    elif self.monster.y > 600:
                         self.monster = None
             pygame.display.update()
             self.clock.tick(60)
