@@ -7,8 +7,7 @@ class Leaf:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.image = pygame.image.load(
-            "doodleJump/graphics/leaf.png").convert_alpha()
+        self.image = pygame.image.load("doodleJump/graphics/leaf.png").convert_alpha()
 
 
 class Player:
@@ -18,10 +17,8 @@ class Player:
         self.dy = 0.0
         self.h = 200
         self.dead = 0
-        self.normalImg = pygame.image.load(
-            "doodleJump/graphics/normal.png").convert_alpha()
-        self.shootImg = pygame.image.load(
-            "doodleJump/graphics/shoot.png").convert_alpha()
+        self.normalImg = pygame.image.load("doodleJump/graphics/normal.png").convert_alpha()
+        self.shootImg = pygame.image.load("doodleJump/graphics/shoot.png").convert_alpha()
         self.image = self.normalImg
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
@@ -56,8 +53,7 @@ class Projectile:
         self.cooldown = 1
         self.x = x
         self.y = y
-        self.image = pygame.image.load(
-            "doodleJump/graphics/projectile.png").convert_alpha()
+        self.image = pygame.image.load("doodleJump/graphics/projectile.png").convert_alpha()
         self.collisionBox = self.image.get_rect(topleft=(self.x, self.y))
 
 
@@ -96,8 +92,7 @@ class Game:
         self.screen.fill("red")
         text = self.gameOverFont.render("Game Over...", 1, (0, 0, 0))
         self.screen.blit(text, (75, 200))
-        text = self.gameOverFont.render(
-            f"Your score: {self.points} points", 1, (0, 0, 0))
+        text = self.gameOverFont.render(f"Your score: {self.points} points", 1, (0, 0, 0))
         self.screen.blit(text, (40, 300))
         text = self.gameOverFont.render(f"Space to play again", 1, (0, 0, 0))
         self.screen.blit(text, (40, 400))
@@ -106,8 +101,7 @@ class Game:
 
     def deadSound(self):
         pygame.mixer.pause()
-        pygame.mixer.Channel(0).play(
-            pygame.mixer.Sound('doodleJump/audio/death.mp3'))
+        pygame.mixer.Channel(0).play(pygame.mixer.Sound('doodleJump/audio/death.mp3'))
 
     # main program
 
@@ -170,8 +164,7 @@ class Game:
                 # projectile logic
                 self.projectile.cooldown -= 0.02
                 self.projectile.y -= 7
-                self.projectile.collisionBox = self.projectile.image.get_rect(
-                    topleft=(self.projectile.x, self.projectile.y))
+                self.projectile.collisionBox = self.projectile.image.get_rect(topleft=(self.projectile.x, self.projectile.y))
                 self.screen.blit(self.projectile.image,self.projectile.collisionBox)
                 
 
@@ -187,8 +180,7 @@ class Game:
                 # monster logic
                 if not self.monster == None:
                     # update monster.collisionBox to monsters position
-                    self.monster.collisionBox = self.monster.image.get_rect(
-                        topleft=(self.monster.x, self.monster.y))
+                    self.monster.collisionBox = self.monster.image.get_rect(topleft=(self.monster.x, self.monster.y))
 
                     # movement
                     # Move monster down when player moves up
@@ -205,8 +197,7 @@ class Game:
                     elif self.monster.x <= 0:
                         self.monster.direction = 1
                     # draw monster
-                    self.screen.blit(self.monster.image,
-                                     self.monster.collisionBox)
+                    self.screen.blit(self.monster.image,self.monster.collisionBox)
 
                     # deaths
                     # if monster colides with player, player dies
