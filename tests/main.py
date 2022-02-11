@@ -2,6 +2,8 @@ import pygame
 import time
 import random
 
+random.seed()
+
 # measures,distance...
 screen_width = 606
 screen_height = 606
@@ -147,13 +149,12 @@ class Balls(pygame.sprite.Sprite):
 
 
 # create the balls in the map
-balls = [Balls(x, y) for x in range(30, 600, 60)
-         for y in range(30, 600, 60) if not (180 < x < 360 and 180 < y < 420)]
+balls = [Balls(x, y) for x in range(30, 600, 60)for y in range(30, 600, 60) if not (180 < x < 360 and 180 < y < 420)]
 balls_list.add(balls)
 
 
 # player class
-class Player:
+class Player(pygame.sprite.Sprite):
     def __init__(self):
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
@@ -194,24 +195,53 @@ class Player:
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
-class Ghost():
-    def __init__():
-        pass
+class Ghost(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.x = screen_width / 2 - 15
+        self.y = screen_height / 2 -45
+        self.image = pygame.transform.scale(surface=pygame.image.load('images/ghost.png').convert_alpha(), size=(32, 32))
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        self.direction=1
+
+    def changeDirection(self):
+        newDirection=random.randint(1,4)
+        while newDirection==self.direction:
+            newDirection=random.randint(1,4)
+        self.direction=newDirection
+        print(f"changed direction to {self.direction}")
+
+    def move(self, distance):        
+        if self.direction==1:
+            self.y -= distance
+        if self.direction==2:
+            self.x -= distance
+        if self.direction==3:
+            self.x += distance
+        if self.direction==4:
+            self.y += distance
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+        
 
 # create Pacman player
 player = Player()
+# create ghost NPC
 
+
+# the ghosts that want to eat pacman
+ghost=Ghost()
 
 # logic of the game
-
 # main menu
 screen.fill(BLACK)
 
 # Intro music and text
-screen.blit(scoreFont.render(f"pacman", 1, (255, 255, 255)), (10, 10))
+""" screen.blit(scoreFont.render("pacman", 1, (255, 255, 255)), (255, 300))
+pygame.display.update()
 song=pygame.mixer.Sound("sounds/intro.wav")
 song.play()
-time.sleep(song.get_length()+.5)
+time.sleep(song.get_length()+.5) """
 
 
 # game running
@@ -247,21 +277,40 @@ while game_state == playing:
     balls_list.draw(screen)
 
     # colition for pacman
-    colition_pacman = any([True if player.rect.colliderect(wall.rect) else False for wall in wall_list])
-    
-    colition_gate = any([True if player.rect.colliderect(gate.rect) else False for gate in gate])
+    pacman_colition = any([True if player.rect.colliderect(wall.rect) else False for wall in wall_list])    
+    pacman_colition_gate = any([True if player.rect.colliderect(gate.rect) else False for gate in gate])
 
-    if colition_pacman and player.direction == 3:
+    if pacman_colition and player.direction == 3:
         player.x -= distance
-    if colition_pacman and player.direction == 2:
+    if pacman_colition and player.direction == 2:
         player.x += distance
-    if colition_pacman and player.direction == 1:
+    if pacman_colition and player.direction == 1:
         player.y += distance
-    if colition_pacman and player.direction == 4:
+    if pacman_colition and player.direction == 4:
         player.y -= distance
-    if colition_gate and player.direction == 4:
+    if pacman_colition_gate and player.direction == 4:
         player.y -= distance
+    
 
-    player.move(distance)
     player.draw()
+    player.move(distance)
+    ghost.move(distance)
+    ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
+    if ghost_colition and ghost.direction == 3:
+        ghost.x -= distance+4
+        ghost.changeDirection()
+    if ghost_colition and ghost.direction == 2:
+        ghost.x += distance+4
+        ghost.changeDirection()
+    if ghost_colition and ghost.direction == 1:
+        ghost.y += distance+4
+        ghost.changeDirection()
+    if ghost_colition and ghost.direction == 4:
+        ghost.y -= distance+4
+        ghost.changeDirection()
+
+
+    if ghost.rect.colliderect(player.rect):
+        pygame.quit()
+        quit()    
     clock.tick(60)
