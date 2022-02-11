@@ -209,7 +209,6 @@ class Ghost(pygame.sprite.Sprite):
         while newDirection==self.direction:
             newDirection=random.randint(1,4)
         self.direction=newDirection
-        print(f"changed direction to {self.direction}")
 
     def move(self, distance):        
         if self.direction==1:
@@ -311,7 +310,7 @@ while game_state == playing:
         ghost.changeDirection()
 
 
-    if ghost.rect.colliderect(player.rect):
+    if ghost.rect.colliderect(player.rect) or score==88:
         pygame.quit()
         quit()    
     clock.tick(60)
