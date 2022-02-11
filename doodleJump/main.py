@@ -93,9 +93,9 @@ class Game:
         text = self.gameOverFont.render("Game Over...", 1, (0, 0, 0))
         self.screen.blit(text, (75, 200))
         text = self.gameOverFont.render(f"Your score: {self.points} points", 1, (0, 0, 0))
-        self.screen.blit(text, (40, 300))
+        self.screen.blit(text, (0, 300))
         text = self.gameOverFont.render(f"Space to play again", 1, (0, 0, 0))
-        self.screen.blit(text, (40, 400))
+        self.screen.blit(text, (20, 400))
         if self.key[pygame.K_SPACE]:
             self.startGame()
 
