@@ -1,4 +1,5 @@
 import pygame
+import time
 import random
 
 # measures,distance...
@@ -12,6 +13,15 @@ start = 1
 playing = 2
 game_over = 3
 game_state = playing
+
+
+# score atributes
+score = 0
+scoreX = 390
+scoreY = 10
+pygame.font.init()
+scoreFont = pygame.font.Font("fonts/Emulogic-zrEw.ttf", 15)
+introFont = pygame.font.Font("fonts/Pacfont-ZEBZ.ttf", 50)
 
 
 # initialize the screen
@@ -34,7 +44,7 @@ pygame.display.set_icon(icon)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
-YELLOW = (255,255,0)
+YELLOW = (255, 255, 0)
 
 # set the game clock
 clock = pygame.time.Clock()
@@ -110,34 +120,36 @@ for item in walls:
     wall = Wall(item[0], item[1], item[2], item[3], BLUE)
     wall_list.add(wall)
     all_sprites_list.add(wall)
-    
-    
-#the white gate for the ghost spawn
+
+
+# the white gate for the ghost spawn
 gate = pygame.sprite.Group()
-gate.add(Wall(282,242,42,2,WHITE))
+gate.add(Wall(282, 242, 42, 2, WHITE))
 all_sprites_list.add(gate)
-    
 
 
-#the balls pacman wants to eat
+# the balls pacman wants to eat
 balls_list = pygame.sprite.Group()
+
+
 class Balls(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         # Call the parent's constructor
         pygame.sprite.Sprite.__init__(self)
 
         self.imageSource = pygame.image.load('images/ball.png').convert_alpha()
-        self.image = pygame.transform.scale(self.imageSource, (10,10))
+        self.image = pygame.transform.scale(self.imageSource, (10, 10))
 
         # Make our top-left corner the passed-in location
         self.rect = self.image.get_rect()
         self.rect.top = x
-        self.rect.left = y  
+        self.rect.left = y
 
-#create the balls in the map
-balls=[Balls(x,y) for x in range(30, 600,60) for y in range(30,600,60) if not (180<x<360 and 180<y<420)]
+
+# create the balls in the map
+balls = [Balls(x, y) for x in range(30, 600, 60)
+         for y in range(30, 600, 60) if not (180 < x < 360 and 180 < y < 420)]
 balls_list.add(balls)
-
 
 
 # player class
@@ -147,7 +159,8 @@ class Player:
         pygame.sprite.Sprite.__init__(self)
         self.x = screen_width / 2 - 15
         self.y = screen_height / 2 + 74
-        self.imageSource = pygame.image.load('images/player.png').convert_alpha()
+        self.imageSource = pygame.image.load(
+            'images/player.png').convert_alpha()
         self.image = self.imageSource
         self.lives = 3
         self.alive = True
@@ -160,19 +173,19 @@ class Player:
         if key[pygame.K_RIGHT] or key[pygame.K_d]:
             self.x += distance
             self.direction = 3
-            self.image=pygame.transform.rotate(self.imageSource, 360)
+            self.image = pygame.transform.rotate(self.imageSource, 360)
         elif key[pygame.K_LEFT] or key[pygame.K_a]:
             self.x -= distance
             self.direction = 2
-            self.image=pygame.transform.rotate(self.imageSource, 180)
+            self.image = pygame.transform.rotate(self.imageSource, 180)
         elif key[pygame.K_UP] or key[pygame.K_w]:
             self.y -= distance
             self.direction = 1
-            self.image=pygame.transform.rotate(self.imageSource, 90)
+            self.image = pygame.transform.rotate(self.imageSource, 90)
         elif key[pygame.K_DOWN] or key[pygame.K_s]:
             self.y += distance
             self.direction = 4
-            self.image=pygame.transform.rotate(self.imageSource,270)
+            self.image = pygame.transform.rotate(self.imageSource, 270)
         elif key[pygame.K_ESCAPE]:
             pygame.quit()
             exit()
@@ -181,6 +194,9 @@ class Player:
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
+class Ghost():
+    def __init__():
+        pass
 
 # create Pacman player
 player = Player()
@@ -189,11 +205,16 @@ player = Player()
 # logic of the game
 
 # main menu
-while game_state == start:
-    screen.fill(BLACK)
+screen.fill(BLACK)
+
+# Intro music and text
+screen.blit(scoreFont.render(f"pacman", 1, (255, 255, 255)), (10, 10))
+song=pygame.mixer.Sound("sounds/intro.wav")
+song.play()
+time.sleep(song.get_length()+.5)
 
 
-#game running
+# game running
 while game_state == playing:
     # if close window is pressed the game closes
     for event in pygame.event.get():
@@ -201,13 +222,18 @@ while game_state == playing:
             pygame.quit()
             exit()
 
-
-
-        
-
-
     # check if pacman hits a wall------------- to do---------------------------(esto se carga lo que hay en la lista cuidao)
     gets_hit = pygame.sprite.spritecollide(player, balls_list, True)
+    if gets_hit != []:
+        score += 1
+    text = scoreFont.render(f"Your score: {score}", 1, (255, 255, 255))
+    screen.blit(text, (scoreX, scoreY))
+    # score's position
+    if player.x>300 and player.y <100:
+        scoreX=scoreY=10
+    else:
+        scoreX,scoreY=390,10
+
     #gets_hit = pygame.sprite.spritecollide(player, wall_list, True)
     #gets_hit = pygame.sprite.collide_rect(player.rect)
     # if player == gets_hit:
@@ -220,9 +246,11 @@ while game_state == playing:
     gate.draw(screen)
     balls_list.draw(screen)
 
-    #colition for pacman
+    # colition for pacman
     colition_pacman = any([True if player.rect.colliderect(wall.rect) else False for wall in wall_list])
+    
     colition_gate = any([True if player.rect.colliderect(gate.rect) else False for gate in gate])
+
     if colition_pacman and player.direction == 3:
         player.x -= distance
     if colition_pacman and player.direction == 2:
@@ -237,4 +265,3 @@ while game_state == playing:
     player.move(distance)
     player.draw()
     clock.tick(60)
-
