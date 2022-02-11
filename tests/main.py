@@ -220,6 +220,7 @@ class Ghost(pygame.sprite.Sprite):
             self.x += distance
         if self.direction==4:
             self.y += distance
+        
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
         
@@ -237,11 +238,11 @@ ghost=Ghost()
 screen.fill(BLACK)
 
 # Intro music and text
-""" screen.blit(scoreFont.render("pacman", 1, (255, 255, 255)), (255, 300))
+screen.blit(scoreFont.render("pacman", 1, (255, 255, 255)), (255, 300))
 pygame.display.update()
 song=pygame.mixer.Sound("sounds/intro.wav")
 song.play()
-time.sleep(song.get_length()+.5) """
+time.sleep(song.get_length()+.5)
 
 
 # game running
@@ -292,8 +293,8 @@ while game_state == playing:
         player.y -= distance
     
 
-    player.draw()
     player.move(distance)
+    player.draw()
     ghost.move(distance)
     ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
     if ghost_colition and ghost.direction == 3:
