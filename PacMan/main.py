@@ -8,6 +8,8 @@ random.seed()
 screen_width = 606
 screen_height = 606
 distance = 2
+ghost_distance = 2
+ghost_colition = False
 
 
 # game state
@@ -159,7 +161,8 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = screen_width / 2 - 15
         self.y = screen_height / 2 + 74
-        self.imageSource = pygame.image.load('images/player.png').convert_alpha()
+        self.imageSource = pygame.image.load(
+            'images/player.png').convert_alpha()
         self.image = self.imageSource
         self.lives = 3
         self.alive = True
@@ -172,14 +175,17 @@ class Player(pygame.sprite.Sprite):
             self.x += distance
             self.direction = 3
             self.image = pygame.transform.rotate(self.imageSource, 360)
+
         elif key[pygame.K_LEFT] or key[pygame.K_a]:
             self.x -= distance
             self.direction = 2
             self.image = pygame.transform.rotate(self.imageSource, 180)
+
         elif key[pygame.K_UP] or key[pygame.K_w]:
             self.y -= distance
             self.direction = 1
             self.image = pygame.transform.rotate(self.imageSource, 90)
+
         elif key[pygame.K_DOWN] or key[pygame.K_s]:
             self.y += distance
             self.direction = 4
@@ -195,26 +201,58 @@ class Ghost(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = screen_width / 2 - 15
         self.y = screen_height / 2 - 45
-        self.image = pygame.transform.scale(surface=pygame.image.load('images/ghost.png').convert_alpha(), size=(32, 32))
+        self.image = pygame.transform.scale(surface=pygame.image.load(
+            'images/ghost.png').convert_alpha(), size=(32, 32))
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         self.direction = 1
 
     def changeDirection(self):
         newDirection = random.randint(1, 4)
-        while newDirection == self.direction:
-            newDirection = random.randint(1, 4)
-        self.direction = newDirection
+        if newDirection == self.direction:
+            self.changeDirection()
 
-    def move(self, distance):
+        else:
+            self.direction = newDirection
+
+    def move(self, ghost_distance):
+
         if self.direction == 1:
-            self.y -= distance
-        if self.direction == 2:
-            self.x -= distance
-        if self.direction == 3:
-            self.x += distance
-        if self.direction == 4:
-            self.y += distance
+            self.y -= ghost_distance
 
+        if self.direction == 2:
+            self.x -= ghost_distance
+
+        if self.direction == 3:
+            self.x += ghost_distance
+
+        if self.direction == 4:
+            self.y += ghost_distance
+
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+
+    def draw(self):
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+    def avoid_top(self):
+        self.y += ghost_distance
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+    def avoid_left(self):
+        self.x += ghost_distance
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+    def avoid_right(self):
+        self.x -= ghost_distance
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+    def avoid_bottom(self):
+        self.y -= ghost_distance
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
@@ -247,14 +285,17 @@ while True:
         if event.type == pygame.QUIT or key[pygame.K_ESCAPE]:
             pygame.quit()
             exit()
+
     if game_state == "game_over":
         screen.fill(BLACK)
         screen.blit(scoreFont.render("GAME_OVER", 1, (RED)), (255, 300))
         pygame.display.update()
+
     elif game_state == "game_ended":
         screen.fill(BLACK)
         screen.blit(scoreFont.render("You win :D", 1, (WHITE)), (255, 300))
         pygame.display.update()
+
     else:
 
         # check if pacman hits a wall------------- to do---------------------------(esto se carga lo que hay en la lista cuidao)
@@ -277,36 +318,64 @@ while True:
         balls_list.draw(screen)
 
         # colition for pacman
-        pacman_colition = any([True if player.rect.colliderect(wall.rect) else False for wall in wall_list])
-        pacman_colition_gate = any([True if player.rect.colliderect(gate.rect) else False for gate in gate])
+        pacman_colition = any([True if player.rect.colliderect(
+            wall.rect) else False for wall in wall_list])
+        pacman_colition_gate = any(
+            [True if player.rect.colliderect(gate.rect) else False for gate in gate])
 
         if pacman_colition and player.direction == 3:
             player.x -= distance
+
         if pacman_colition and player.direction == 2:
             player.x += distance
+
         if pacman_colition and player.direction == 1:
             player.y += distance
+
         if pacman_colition and player.direction == 4:
             player.y -= distance
+
         if pacman_colition_gate and player.direction == 4:
             player.y -= distance
 
         player.move(distance, key)
         player.draw()
-        ghost.move(distance)
-        ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
-        if ghost_colition and ghost.direction == 3:
-            ghost.x -= distance+4
+        for wall in wall_list:
+            collide = pygame.Rect.colliderect(ghost.rect, wall.rect)
+            if collide:
+                break
+            
+
+        if not collide and ghost_colition == False:
+            print("no no")
+            ghost.move(ghost_distance)
+        elif collide and ghost_colition == False:
+            print("si no")
+            ghost_colition = True
+            ghost.draw()
+
+        elif collide and ghost_colition == True:
+            print("si si")
+            if ghost.direction == 1:
+                ghost.avoid_top()
+
+            if ghost.direction == 2:
+                ghost.avoid_left()
+
+            if ghost.direction == 3:
+                ghost.avoid_right()
+
+            if ghost.direction == 4:
+                ghost.avoid_bottom()
+
+        elif not collide and ghost_colition == True:
+            print("no si")
+            ghost_colition = False
             ghost.changeDirection()
-        if ghost_colition and ghost.direction == 2:
-            ghost.x += distance+4
-            ghost.changeDirection()
-        if ghost_colition and ghost.direction == 1:
-            ghost.y += distance+4
-            ghost.changeDirection()
-        if ghost_colition and ghost.direction == 4:
-            ghost.y -= distance+4
-            ghost.changeDirection()
+            ghost.move(ghost_distance)
+
+        #ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
+        # ghost.changeDirection(ghost_colition)
 
         if ghost.rect.colliderect(player.rect):
             game_state = "game_over"
