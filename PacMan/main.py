@@ -167,28 +167,28 @@ class Player(pygame.sprite.Sprite):
         self.lives = 3
         self.alive = True
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.direction = 3
+        self.direction = 2
 
     # movement for pacman
     def move(self, distance, key):
         if key[pygame.K_RIGHT] or key[pygame.K_d]:
             self.x += distance
-            self.direction = 3
+            self.direction = 2
             self.image = pygame.transform.rotate(self.imageSource, 360)
 
         elif key[pygame.K_LEFT] or key[pygame.K_a]:
             self.x -= distance
-            self.direction = 2
+            self.direction = 1
             self.image = pygame.transform.rotate(self.imageSource, 180)
 
         elif key[pygame.K_UP] or key[pygame.K_w]:
             self.y -= distance
-            self.direction = 1
+            self.direction = 0
             self.image = pygame.transform.rotate(self.imageSource, 90)
 
         elif key[pygame.K_DOWN] or key[pygame.K_s]:
             self.y += distance
-            self.direction = 4
+            self.direction = 3
             self.image = pygame.transform.rotate(self.imageSource, 270)
 
     def draw(self):
@@ -204,33 +204,27 @@ class Ghost(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(surface=pygame.image.load(
             'images/ghost.png').convert_alpha(), size=(32, 32))
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.direction = 1
+        self.direction = 0
 
     def changeDirection(self):
-        newDirection = random.randint(1, 4)
-        if newDirection == self.direction:
-            self.changeDirection()
-
-        else:
-            self.direction = newDirection
+        self.direction = (random.randint(1, 3)+self.direction) % 4
 
     def move(self, ghost_distance):
 
-        if self.direction == 1:
+        if self.direction == 0:
             self.y -= ghost_distance
 
-        if self.direction == 2:
+        if self.direction == 1:
             self.x -= ghost_distance
 
-        if self.direction == 3:
+        if self.direction == 2:
             self.x += ghost_distance
 
-        if self.direction == 4:
+        if self.direction == 3:
             self.y += ghost_distance
 
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
-
 
     def draw(self):
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
@@ -259,7 +253,6 @@ class Ghost(pygame.sprite.Sprite):
 
 # create Pacman player
 player = Player()
-# create ghost NPC
 
 
 # the ghosts that want to eat pacman
@@ -297,11 +290,11 @@ while True:
         pygame.display.update()
 
     else:
-
         # check if pacman hits a wall------------- to do---------------------------(esto se carga lo que hay en la lista cuidao)
         gets_hit = pygame.sprite.spritecollide(player, balls_list, True)
         if gets_hit != []:
             score += 1
+        # draw score
         text = scoreFont.render(f"Your score: {score}", 1, (255, 255, 255))
         screen.blit(text, (scoreX, scoreY))
         # score's position
@@ -323,19 +316,19 @@ while True:
         pacman_colition_gate = any(
             [True if player.rect.colliderect(gate.rect) else False for gate in gate])
 
-        if pacman_colition and player.direction == 3:
-            player.x -= distance
-
-        if pacman_colition and player.direction == 2:
-            player.x += distance
-
-        if pacman_colition and player.direction == 1:
+        if pacman_colition and player.direction == 0:
             player.y += distance
 
-        if pacman_colition and player.direction == 4:
+        if pacman_colition and player.direction == 1:
+            player.x += distance
+
+        if pacman_colition and player.direction == 2:
+            player.x -= distance
+
+        if pacman_colition and player.direction == 3:
             player.y -= distance
 
-        if pacman_colition_gate and player.direction == 4:
+        if pacman_colition_gate and player.direction == 3:
             player.y -= distance
 
         player.move(distance, key)
@@ -344,7 +337,6 @@ while True:
             collide = pygame.Rect.colliderect(ghost.rect, wall.rect)
             if collide:
                 break
-            
 
         if not collide and ghost_colition == False:
             print("no no")
@@ -356,16 +348,16 @@ while True:
 
         elif collide and ghost_colition == True:
             print("si si")
-            if ghost.direction == 1:
+            if ghost.direction == 0:
                 ghost.avoid_top()
 
-            if ghost.direction == 2:
+            if ghost.direction == 1:
                 ghost.avoid_left()
 
-            if ghost.direction == 3:
+            if ghost.direction == 2:
                 ghost.avoid_right()
 
-            if ghost.direction == 4:
+            if ghost.direction == 3:
                 ghost.avoid_bottom()
 
         elif not collide and ghost_colition == True:
