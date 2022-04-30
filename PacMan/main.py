@@ -8,8 +8,14 @@ random.seed()
 screen_width = 606
 screen_height = 606
 distance = 2
-ghost_distance = 2
-ghost_colition = False
+up = 0
+left = 1
+right = 2
+down = 3
+
+
+
+
 
 
 # game state
@@ -116,6 +122,42 @@ walls = [[0, 0, 6, 600],
          [360, 540, 126, 6]
          ]
 
+angles = [
+        [6, 28,67,87,right],
+        [126,148,67,87,down],
+        [246,268,67,87,up],
+        [306,328,67,87,up],
+        [426,448,67,87,down],
+        [546,568,67,87,left],
+
+        [126,148,127,147,up],
+        [246,448,127,147,up],
+
+        [186,208,187,207,down],
+        [246,448,187,207,up],
+        [306,328,187,207,up],
+        [366,388,187,207,down],
+
+        [66,88,247,267,left],
+        [486,508,247,267,right],
+
+        [66,88,307,327,up],
+        [126,148,307,327,left],
+        [426,448,307,327,right],
+        [486,508,307,327,up],
+
+        [126,248,367,387,up],
+        [426,448,367,387,up],
+
+        [66,88,487,507,right],
+        [126,148,487,507,up],
+        [426,448,487,507,up],
+        [486,508,487,507,left],
+
+        [66,88,547,567,up],
+        [246,448,547,567,up],
+        [306,328,547,567,up],
+        [486,508,547,567,up]]
 
 # create the list that contain all the objects that means wall in the game and posicionate the walls in the screen
 for item in walls:
@@ -205,6 +247,12 @@ class Ghost(pygame.sprite.Sprite):
             'images/ghost.png').convert_alpha(), size=(32, 32))
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         self.direction = 0
+        self.distance = 2
+        self.collide = False
+        self.colition = False
+        self.in_angle = False
+        self.angle_regist = False
+        self.angle_changed = True
 
     def changeDirection(self):
         self.direction = (random.randint(1, 3)+self.direction) % 4
@@ -231,24 +279,140 @@ class Ghost(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
     def avoid_top(self):
-        self.y += ghost_distance
+        self.y += self.distance
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
     def avoid_left(self):
-        self.x += ghost_distance
+        self.x += self.distance
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
     def avoid_right(self):
-        self.x -= ghost_distance
+        self.x -= self.distance
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
 
     def avoid_bottom(self):
-        self.y -= ghost_distance
+        self.y -= self.distance
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
         screen.blit(self.image, self.rect)
+
+
+    def angle_up(self):
+        if self.direction == left:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = left
+
+        if self.direction == right:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = right
+
+        if self.direction == down:
+            angleDirection = random.randint(1, 3)
+            if angleDirection == 1:
+                self.direction = left
+
+            elif angleDirection == 2:
+                self.direction = right
+
+            elif angleDirection == 2:
+                self.direction = down
+
+
+    def angle_left(self):
+        if self.direction == down:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = down
+
+            elif angleDirection == 2:
+                self.direction = left
+
+        if self.direction == up:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = left
+
+        if self.direction == right:
+            angleDirection = random.randint(1, 3)
+            if angleDirection == 1:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = right
+
+            elif angleDirection == 2:
+                self.direction = down
+
+
+    def angle_right(self):
+        if self.direction == up:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = right
+
+        if self.direction == down:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = down
+
+            elif angleDirection == 2:
+                self.direction = right
+
+        if self.direction == left:
+            angleDirection = random.randint(1, 3)
+            if angleDirection == 1:
+                self.direction = left
+
+            elif angleDirection == 2:
+                self.direction = up
+
+            elif angleDirection == 2:
+                self.direction = down
+
+
+    def angle_down(self):
+        if self.direction == left:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = down
+
+            elif angleDirection == 2:
+                self.direction = left
+
+        if self.direction == right:
+            angleDirection = random.randint(1, 2)
+            if angleDirection == 1:
+                self.direction = down
+
+            elif angleDirection == 2:
+                self.direction = right
+
+        if self.direction == up:
+            angleDirection = random.randint(1, 3)
+            if angleDirection == 1:
+                self.direction = left
+
+            elif angleDirection == 2:
+                self.direction = right
+
+            elif angleDirection == 2:
+                self.direction = up
 
 
 # create Pacman player
@@ -256,7 +420,16 @@ player = Player()
 
 
 # the ghosts that want to eat pacman
-ghost = Ghost()
+ghost1 =  Ghost()
+ghost2 =  Ghost()
+ghost3 =  Ghost()
+ghost4 =  Ghost()
+ghosts = [ghost1,
+          ghost2,
+          ghost3,
+          ghost4
+          ]
+
 
 # logic of the game
 # main menu
@@ -333,45 +506,94 @@ while True:
 
         player.move(distance, key)
         player.draw()
-        for wall in wall_list:
-            collide = pygame.Rect.colliderect(ghost.rect, wall.rect)
-            if collide:
-                break
+        #------ghost movement------#
+        for item in ghosts:
 
-        if not collide and ghost_colition == False:
-            print("no no")
-            ghost.move(ghost_distance)
-        elif collide and ghost_colition == False:
-            print("si no")
-            ghost_colition = True
-            ghost.draw()
+            for wall in wall_list:
+                item.collide = pygame.Rect.colliderect(item.rect, wall.rect)
+                if item.collide:
+                    break
 
-        elif collide and ghost_colition == True:
-            print("si si")
-            if ghost.direction == 0:
-                ghost.avoid_top()
+            if not item.collide and item.colition == False:
+                #print("no no")
+                item.move(item.distance)
+            elif item.collide and item.colition == False:
+                #print("si no")
+                item.colition = True
+                item.draw()
 
-            if ghost.direction == 1:
-                ghost.avoid_left()
+            elif item.collide and item.colition == True:
+                #print("si si")
+                if item.direction == 0:
+                    item.avoid_top()
 
-            if ghost.direction == 2:
-                ghost.avoid_right()
+                if item.direction == 1: 
+                    item.avoid_left()
 
-            if ghost.direction == 3:
-                ghost.avoid_bottom()
+                if item.direction == 2:
+                    item.avoid_right()
 
-        elif not collide and ghost_colition == True:
-            print("no si")
-            ghost_colition = False
-            ghost.changeDirection()
-            ghost.move(ghost_distance)
+                if item.direction == 3:
+                    item.avoid_bottom()
 
-        #ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
-        # ghost.changeDirection(ghost_colition)
+            elif not item.collide and item.colition == True:
+                #print("no si")
+                item.colition = False
+                item.changeDirection()
+                item.move(item.distance)
 
-        if ghost.rect.colliderect(player.rect):
-            game_state = "game_over"
-        elif score == 88:
-            game_state = "game_ended"
+            #ghost_colition = any([True if ghost.rect.colliderect(wall.rect) else False for wall in wall_list])
+            # ghost.changeDirection(ghost_colition)
+
+            
+            for value in angles:
+                if value[0] <= (item.x +1) and value[1] >= (item.x-1) and value[2] <= (item.y+1) and value[3] >= (item.y-1):
+                    item.in_angle = True
+                    break
+                else:
+                    item.in_angle = False
+
+            if not item.in_angle and item.angle_regist == False:
+                print("no no")
+
+            elif item.in_angle and item.angle_regist == False:
+                print("si no")
+                item.angle_regist = True
+
+            elif item.in_angle and item.angle_regist == True and item.angle_changed == False:
+                print("si si no")
+                if value[4] == up:
+                    item.angle_up()
+                    print("up")
+
+                elif value[4] == left:
+                    item.angle_left()
+                    print("left")
+
+                elif value[4] == right:
+                    item.angle_right()
+                    print("right")
+
+                elif value[4] == up:
+                    item.angle_down()
+                    print("down")
+
+                item.angle_changed = True
+            
+            elif item.in_angle and item.angle_regist == True and item.angle_changed == True:
+                pass
+
+            elif not item.in_angle and item.angle_regist == True:
+                print("no si")
+                item.angle_regist = False
+                item.angle_changed = False
+
+            if item.rect.colliderect(player.rect):
+                game_state = "game_over"
+            elif score == 88:
+                game_state = "game_ended"
+        
+        ejes = scoreFont.render(f"X: {player.x}, Y: {player.y}", 1, (255, 255, 255))
+        screen.blit(ejes, (30, 580))
 
     clock.tick(60)
